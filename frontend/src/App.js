@@ -12,8 +12,8 @@ function App() {
   const [apiStatus, setApiStatus] = useState({ isChecking: true, isOnline: false, message: 'Checking API status...' });
 
   // Define the API base URL
-  // In production, the API is served from the same domain at /api
-  // In development, we use the full URL to localhost:8000
+  // In production (Vercel), use '/api'
+  // In development, use localhost:8000
   const API_BASE_URL = process.env.NODE_ENV === 'production' 
     ? '/api' 
     : 'http://localhost:8000';
