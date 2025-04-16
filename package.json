@@ -4,10 +4,23 @@
   "description": "Diabetes Prediction System with React and Python",
   "scripts": {
     "build": "cd frontend && npm install && npm run build",
-    "vercel-build": "python -m pip install --upgrade pip && python -m pip install -r api/requirements.txt"
+    "vercel-build": "echo 'Vercel Build Started'"
   },
   "engines": {
     "node": ">=14",
     "python": "3.9"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/diabetes-prediction-system"
+  },
+  "keywords": [
+    "diabetes",
+    "prediction",
+    "react",
+    "python",
+    "flask"
+  ],
+  "author": "",
+  "license": "MIT"
 } 

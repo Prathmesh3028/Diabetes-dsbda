@@ -1,6 +1,19 @@
 from http.server import BaseHTTPRequestHandler
 import json
 
+def handler(request, context):
+    # This function is called by Vercel serverless
+    headers = {
+        'Content-type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+    }
+    
+    return {
+        'statusCode': 200,
+        'headers': headers,
+        'body': json.dumps({'status': 'healthy'})
+    }
+
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)

@@ -3,6 +3,66 @@ import json
 import os
 import sys
 
+def handler(request, context):
+    # This function is called by Vercel serverless
+    try:
+        # Get request body
+        body = json.loads(request.get('body', '{}'))
+        
+        # Extract features
+        pregnancies = float(body.get('pregnancies', 0))
+        glucose = float(body.get('glucose', 0))
+        blood_pressure = float(body.get('bloodPressure', 0))
+        skin_thickness = float(body.get('skinThickness', 0))
+        insulin = float(body.get('insulin', 0))
+        bmi = float(body.get('bmi', 0))
+        diabetes_pedigree = float(body.get('diabetesPedigreeFunction', 0))
+        age = float(body.get('age', 0))
+        
+        # Calculate risk score (simplified algorithm)
+        # Higher values for glucose, BMI, age, and family history increase risk
+        risk_score = (
+            (glucose / 140) +  # Normalized glucose (140 mg/dL is high)
+            (bmi / 35) +       # Normalized BMI (35+ is obese)
+            (age / 50) +       # Normalized age (risk increases with age)
+            (diabetes_pedigree * 2) +  # Family history is important
+            (insulin < 50 and glucose > 120) * 0.5 +  # Low insulin + high glucose
+            (pregnancies / 4)  # Multiple pregnancies slightly increase risk
+        )
+        
+        # Determine prediction and probability
+        is_diabetic = risk_score > 2.2
+        probability = min(max(risk_score / 4.5, 0), 1)  # Scale to 0-1
+        
+        # Prepare the response
+        response = {
+            'prediction': int(is_diabetic),
+            'probability': float(probability),
+            'message': 'Diabetes detected' if is_diabetic else 'No diabetes detected',
+            'note': 'This is a simplified model for demonstration purposes only'
+        }
+        
+        # Return response
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'body': json.dumps(response)
+        }
+        
+    except Exception as e:
+        # Handle errors
+        return {
+            'statusCode': 500,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'body': json.dumps({'error': str(e)})
+        }
+
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
         try:

@@ -1,12 +1,15 @@
 {
-  "functions": {
-    "api/*.py": {
-      "runtime": "python3.9"
+  "devCommand": "python -m http.server",
+  "builds": [
+    {
+      "src": "*.py",
+      "use": "@vercel/python",
+      "config": { "runtime": "python3.9" }
     }
-  },
+  ],
   "routes": [
-    { "src": "/api/health", "dest": "/api/health.py" },
-    { "src": "/api/predict", "dest": "/api/predict.py" },
-    { "src": "/api/(.*)", "dest": "/api/index.py" }
+    { "src": "/health", "dest": "/health.py" },
+    { "src": "/predict", "dest": "/predict.py" },
+    { "src": "/(.*)", "dest": "/index.py" }
   ]
 } 
