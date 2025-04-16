@@ -12,10 +12,10 @@ function App() {
   const [apiStatus, setApiStatus] = useState({ isChecking: true, isOnline: false, message: 'Checking API status...' });
 
   // Define the API base URL
-  // In production (Vercel), use '/api'
+  // In production, use environment variable or fall back to relative path
   // In development, use localhost:8000
   const API_BASE_URL = process.env.NODE_ENV === 'production' 
-    ? '/api' 
+    ? (process.env.REACT_APP_API_URL || '/api')
     : 'http://localhost:8000';
 
   // Check if the API is available on component mount

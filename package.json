@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "description": "Diabetes Prediction System with React and Python",
   "scripts": {
-    "build": "cd frontend && npm install && npm run build"
+    "build": "cd frontend && npm install && npm run build",
+    "vercel-build": "python -m pip install --upgrade pip && python -m pip install -r api/requirements.txt"
   },
   "engines": {
-    "node": ">=14"
+    "node": ">=14",
+    "python": "3.9"
   }
 } 

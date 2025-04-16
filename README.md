@@ -105,4 +105,53 @@ The application uses a Random Forest Classifier trained on diabetes health data.
 
 ## Disclaimer
 
-This application is for educational purposes only and should not be used as a substitute for professional medical advice, diagnosis, or treatment. 
+This application is for educational purposes only and should not be used as a substitute for professional medical advice, diagnosis, or treatment.
+
+## Deployment on Render
+
+This project can be deployed on Render using the configuration in `render.yaml`.
+
+### Setup Instructions
+
+1. **Fork/Clone the Repository**
+   
+   Make sure you have a copy of the repository in your GitHub account.
+
+2. **Create a New Render Account**
+   
+   If you don't have a Render account, sign up at [render.com](https://render.com).
+
+3. **Create a New Web Service**
+
+   - From the Render dashboard, click on "New" and select "Blueprint" from the dropdown
+   - Connect your GitHub account and select your repository
+   - Render will automatically detect the `render.yaml` configuration
+   - Click "Apply" to create all services
+
+4. **Environment Variables**
+
+   The following environment variables are used:
+   - `PYTHON_VERSION`: Set to 3.9 for the backend
+   - `NODE_VERSION`: Set to 16 for the frontend
+   - `REACT_APP_API_URL`: Set to your backend API URL
+
+5. **Manual Deployment**
+
+   If you prefer manual deployment instead of using the blueprint:
+   
+   **Backend:**
+   - Create a new Web Service
+   - Connect your repository
+   - Set the Environment to "Python"
+   - Build Command: `pip install -r requirements.txt`
+   - Start Command: `gunicorn --chdir backend app:app`
+   
+   **Frontend:**
+   - Create a new Static Site
+   - Connect your repository
+   - Build Command: `cd frontend && npm install && npm run build`
+   - Publish Directory: `frontend/build`
+
+6. **Custom Domain (Optional)**
+
+   You can configure custom domains for both services in the Render dashboard. 
