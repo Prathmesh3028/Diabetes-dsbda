@@ -12,14 +12,18 @@ function App() {
   const [apiStatus, setApiStatus] = useState({ isChecking: true, isOnline: false, message: 'Checking API status...' });
 
   // Define the API base URL
-  const API_BASE_URL = 'http://localhost:8000';
+  // In production, the API is served from the same domain at /api
+  // In development, we use the full URL to localhost:8000
+  const API_BASE_URL = process.env.NODE_ENV === 'production' 
+    ? '/api' 
+    : 'http://localhost:8000';
 
   // Check if the API is available on component mount
   useEffect(() => {
     const checkApiStatus = async () => {
       try {
-        console.log('Checking API status at:', `${API_BASE_URL}/api/health`);
-        const response = await fetch(`${API_BASE_URL}/api/health`);
+        console.log('Checking API status at:', `${API_BASE_URL}/health`);
+        const response = await fetch(`${API_BASE_URL}/health`);
         console.log('API status response:', response);
         
         if (response.ok) {
@@ -57,7 +61,7 @@ function App() {
     try {
       console.log('Sending prediction request with data:', formData);
       
-      const response = await fetch(`${API_BASE_URL}/api/predict`, {
+      const response = await fetch(`${API_BASE_URL}/predict`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

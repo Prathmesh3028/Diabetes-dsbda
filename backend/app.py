@@ -37,11 +37,11 @@ except Exception as e:
 def home():
     return jsonify({"message": "Diabetes Prediction API is running!"})
 
-@app.route('/api/health')
+@app.route('/health')
 def health():
     return jsonify({"status": "healthy"})
 
-@app.route('/api/predict', methods=['POST'])
+@app.route('/predict', methods=['POST'])
 def predict():
     try:
         print("Received prediction request")
@@ -79,6 +79,11 @@ def predict():
     except Exception as e:
         print(f"Error during prediction: {e}")
         return jsonify({'error': str(e)}), 500
+
+# For Vercel serverless deployment
+def handler(request, context):
+    """Handle Vercel serverless function request"""
+    return app(request)
 
 if __name__ == '__main__':
     print(f"Starting Flask server on port 8000...")
