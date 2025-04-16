@@ -2,32 +2,6 @@ from http.server import BaseHTTPRequestHandler
 import json
 import os
 import sys
-import numpy as np
-
-# Set environment variables for scikit-learn
-os.environ['JOBLIB_TEMP_FOLDER'] = '/tmp'
-
-# Simple prediction function without model loading
-def predict_diabetes(features):
-    """
-    A simplified prediction function that doesn't rely on loading the model
-    This allows deployment without needing to train/load the model on Vercel
-    In a real app, you would use an API to a hosted model or optimize the model loading
-    """
-    # These are simplified rules based on medical knowledge
-    # High glucose, BMI, and age are risk factors for diabetes
-    glucose = features[0][1]  # Index 1 is glucose
-    bmi = features[0][5]      # Index 5 is BMI
-    age = features[0][7]      # Index 7 is age
-    
-    # Calculate a simple risk score (this is NOT a real medical model)
-    risk_score = (glucose / 140) + (bmi / 35) + (age / 50)
-    
-    # Determine prediction and probability
-    is_diabetic = risk_score > 2.1
-    probability = min(max(risk_score / 4, 0), 1)  # Scale to 0-1
-    
-    return int(is_diabetic), float(probability)
 
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
@@ -38,27 +12,35 @@ class handler(BaseHTTPRequestHandler):
             data = json.loads(post_data.decode('utf-8'))
             
             # Extract features
-            features = np.array([
-                [
-                    float(data.get('pregnancies', 0)),
-                    float(data.get('glucose', 0)),
-                    float(data.get('bloodPressure', 0)),
-                    float(data.get('skinThickness', 0)),
-                    float(data.get('insulin', 0)),
-                    float(data.get('bmi', 0)),
-                    float(data.get('diabetesPedigreeFunction', 0)),
-                    float(data.get('age', 0))
-                ]
-            ])
+            pregnancies = float(data.get('pregnancies', 0))
+            glucose = float(data.get('glucose', 0))
+            blood_pressure = float(data.get('bloodPressure', 0))
+            skin_thickness = float(data.get('skinThickness', 0))
+            insulin = float(data.get('insulin', 0))
+            bmi = float(data.get('bmi', 0))
+            diabetes_pedigree = float(data.get('diabetesPedigreeFunction', 0))
+            age = float(data.get('age', 0))
             
-            # Make a prediction using the simplified function
-            prediction, probability = predict_diabetes(features)
+            # Calculate risk score (simplified algorithm)
+            # Higher values for glucose, BMI, age, and family history increase risk
+            risk_score = (
+                (glucose / 140) +  # Normalized glucose (140 mg/dL is high)
+                (bmi / 35) +       # Normalized BMI (35+ is obese)
+                (age / 50) +       # Normalized age (risk increases with age)
+                (diabetes_pedigree * 2) +  # Family history is important
+                (insulin < 50 and glucose > 120) * 0.5 +  # Low insulin + high glucose
+                (pregnancies / 4)  # Multiple pregnancies slightly increase risk
+            )
+            
+            # Determine prediction and probability
+            is_diabetic = risk_score > 2.2
+            probability = min(max(risk_score / 4.5, 0), 1)  # Scale to 0-1
             
             # Prepare the response
             response = {
-                'prediction': prediction,
-                'probability': probability,
-                'message': 'Diabetes detected' if prediction == 1 else 'No diabetes detected',
+                'prediction': int(is_diabetic),
+                'probability': float(probability),
+                'message': 'Diabetes detected' if is_diabetic else 'No diabetes detected',
                 'note': 'This is a simplified model for demonstration purposes only'
             }
             
