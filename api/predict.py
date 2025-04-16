@@ -3,33 +3,31 @@ import json
 import os
 import sys
 import numpy as np
-import joblib
 
-# Add the backend directory to the Python path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'backend'))
+# Set environment variables for scikit-learn
+os.environ['JOBLIB_TEMP_FOLDER'] = '/tmp'
 
-try:
-    # Import the model training module
-    from models.model_training import train_model
+# Simple prediction function without model loading
+def predict_diabetes(features):
+    """
+    A simplified prediction function that doesn't rely on loading the model
+    This allows deployment without needing to train/load the model on Vercel
+    In a real app, you would use an API to a hosted model or optimize the model loading
+    """
+    # These are simplified rules based on medical knowledge
+    # High glucose, BMI, and age are risk factors for diabetes
+    glucose = features[0][1]  # Index 1 is glucose
+    bmi = features[0][5]      # Index 5 is BMI
+    age = features[0][7]      # Index 7 is age
     
-    # Paths to model files
-    model_path = os.path.join(os.path.dirname(__file__), '..', 'backend', 'models', 'diabetes_model.pkl')
-    scaler_path = os.path.join(os.path.dirname(__file__), '..', 'backend', 'models', 'scaler.pkl')
+    # Calculate a simple risk score (this is NOT a real medical model)
+    risk_score = (glucose / 140) + (bmi / 35) + (age / 50)
     
-    # Create the models directory if it doesn't exist
-    os.makedirs(os.path.dirname(model_path), exist_ok=True)
+    # Determine prediction and probability
+    is_diabetic = risk_score > 2.1
+    probability = min(max(risk_score / 4, 0), 1)  # Scale to 0-1
     
-    # Train or load the model
-    if not os.path.exists(model_path) or not os.path.exists(scaler_path):
-        print("Training a new model...")
-        train_model()
-    
-    # Load the model and scaler
-    model = joblib.load(model_path)
-    scaler = joblib.load(scaler_path)
-    
-except Exception as e:
-    print(f"Error loading or training model: {e}")
+    return int(is_diabetic), float(probability)
 
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
@@ -53,18 +51,15 @@ class handler(BaseHTTPRequestHandler):
                 ]
             ])
             
-            # Scale the features
-            features_scaled = scaler.transform(features)
-            
-            # Make a prediction
-            prediction = model.predict(features_scaled)[0]
-            probability = model.predict_proba(features_scaled)[0][1]
+            # Make a prediction using the simplified function
+            prediction, probability = predict_diabetes(features)
             
             # Prepare the response
             response = {
-                'prediction': int(prediction),
-                'probability': float(probability),
-                'message': 'Diabetes detected' if prediction == 1 else 'No diabetes detected'
+                'prediction': prediction,
+                'probability': probability,
+                'message': 'Diabetes detected' if prediction == 1 else 'No diabetes detected',
+                'note': 'This is a simplified model for demonstration purposes only'
             }
             
             # Send the response
