@@ -3,33 +3,36 @@ from flask_cors import CORS
 import joblib
 import pandas as pd
 import os
-from models.model_training import train_model
+import sys
+
+# Add the project root to the Python path to import the model training module
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from backend.models.model_training import train_model
 
 app = Flask(__name__)
 # Enable CORS with simple settings
 CORS(app)
 
 # Check if model exists, if not train it
-model_path = 'models/diabetes_model.pkl'
-scaler_path = 'models/scaler.pkl'
+model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'models/diabetes_model.pkl')
+scaler_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'models/scaler.pkl')
 
 print(f"Current working directory: {os.getcwd()}")
-print(f"Checking for model at: {os.path.abspath(model_path)}")
-
-if not os.path.exists(model_path) or not os.path.exists(scaler_path):
-    print("Training new model...")
-    train_model()
+print(f"Checking for model at: {model_path}")
 
 try:
-    # Load the model and scaler
+    # Try to load the model and scaler
     model = joblib.load(model_path)
     scaler = joblib.load(scaler_path)
     print("Model and scaler loaded successfully")
 except Exception as e:
     print(f"Error loading model: {e}")
     # Train a new model if loading fails
-    print("Training new model due to loading error...")
+    print("Training new model...")
+    if not os.path.exists(os.path.dirname(model_path)):
+        os.makedirs(os.path.dirname(model_path), exist_ok=True)
     train_model()
+    # Try loading again
     model = joblib.load(model_path)
     scaler = joblib.load(scaler_path)
 
@@ -80,11 +83,12 @@ def predict():
         print(f"Error during prediction: {e}")
         return jsonify({'error': str(e)}), 500
 
-# For Vercel serverless deployment
-def handler(request, context):
-    """Handle Vercel serverless function request"""
-    return app(request)
+# Vercel serverless function handler
+def handle_request(req):
+    with app.request_context(req):
+        return app.full_dispatch_request()
 
+# For local development
 if __name__ == '__main__':
     print(f"Starting Flask server on port 8000...")
     app.run(debug=True, host='0.0.0.0', port=8000) 
