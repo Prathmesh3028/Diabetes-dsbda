@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "description": "Diabetes Prediction System with React and Python",
   "scripts": {
-    "build": "cd frontend && npm install && npm run build",
-    "vercel-build": "echo 'Vercel Build Started'"
+    "build": "cd frontend && npm install && npm run build"
   },
   "engines": {
     "node": ">=14",
