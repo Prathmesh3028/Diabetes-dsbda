@@ -46,8 +46,11 @@ def load_data():
 
 def train_model():
     """Train the diabetes prediction model"""
-    # Ensure models directory exists
-    os.makedirs('models', exist_ok=True)
+    # Ensure models directory exists - save directly to backend/models
+    model_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'models')
+    os.makedirs(model_dir, exist_ok=True)
+    
+    print(f"Will save model to: {model_dir}")
     
     # Load data
     data = load_data()
@@ -85,8 +88,14 @@ def train_model():
     print(f"F1 Score: {f1:.4f}")
     
     # Save model and scaler
-    joblib.dump(model, 'models/diabetes_model.pkl')
-    joblib.dump(scaler, 'models/scaler.pkl')
+    model_path = os.path.join(model_dir, 'diabetes_model.pkl')
+    scaler_path = os.path.join(model_dir, 'scaler.pkl')
+    
+    print(f"Saving model to: {model_path}")
+    print(f"Saving scaler to: {scaler_path}")
+    
+    joblib.dump(model, model_path)
+    joblib.dump(scaler, scaler_path)
     
     return True
 
